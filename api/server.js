@@ -74,7 +74,32 @@ server.post('/login', (req, res) => {
     .catch(err => {
       res.status(500).json({error: `there was an error accessing the database: ${err}`})
     })
+})
 
+const lock = ( req, res, next ) => {
+  // check JWT to be sure user is logged in
+  const token = req.headers.authorization;
+
+  if(token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+      if (err) {
+        res.status(401).json({error: 'invalid token'})
+      } else {
+        req.decodedToken = decodedToken;
+        next();
+      }
+    })
+  }
+}
+
+server.get('/users', lock, (req, res) => {
+  db('users').select('username', 'department')
+    .then(userList => {
+      res.status(200).json(userList);
+    })
+    .catch(err => {
+      res.status(400).json({error: `there was an error accessing the database: ${err}`})
+    })
 })
 
 module.exports = server;
