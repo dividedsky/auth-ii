@@ -6,7 +6,7 @@ const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 const knex = require('knex');
 const knexConfig = require('../knexfile.js');
-
+const cors = require('cors');
 const db = knex(knexConfig.development);
 
 const server = express();
@@ -14,6 +14,7 @@ const server = express();
 server.use(morgan('dev'));
 server.use(helmet());
 server.use(express.json());
+server.use(cors({ credentials: true, origin: 'http://localhost:3000'} ));
 
 server.get('/', (req, res) => {
   res.status(200).send('wheee, the server is running')
@@ -41,7 +42,7 @@ server.post('/register', (req, res) => {
     db('users').insert(user)
       .then(id => {
         if (id.length) {
-    res.status(200).json({message: `thanks for registering, ${user.username}. You can now sign in.`})
+    res.status(201).json({message: `thanks for registering, ${user.username}. You can now sign in.`})
         } else {
           res.status(500).json({error: 'something bad happened.'})
         }
