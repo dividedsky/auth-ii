@@ -10,7 +10,8 @@ const LoginWrapper = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   width: 40%;
-  border: 1px solid gray;
+  min-height: 400px;
+  border: 3px solid ${props => props.theme.gray};
   border-radius: 8px;
   background-color: ${props => props.theme.dBlue}
   margin: 40px auto;
@@ -25,6 +26,7 @@ const LoginNav = styled.nav`
   display: flex;
   justify-content: space-around;
   align-items: center;
+  color: black;
 
   a {
     text-decoration: none;
@@ -41,26 +43,45 @@ const LoginNav = styled.nav`
 `;
 
 class LoginContainer extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      loggedIn: false,
+    };
+  }
+
+  logInUser = token => {
+    this.setState({ loggedIn: true });
+    localStorage.setItem('jwt', token);
+  };
+
+  logOutUser = () => {
+    this.setState({ loggedIn: false });
+    localStorage.removeItem('jwt');
+  };
+
   render() {
     return (
       <LoginWrapper>
         <LoginNav>
           <NavLink to="/login">Login</NavLink>
           <NavLink to="/register">Register</NavLink>
-          <NavLink to="/users">Users</NavLink>
+          <NavLink exact to="/users">Users</NavLink>
+          <NavLink to="/users/department">Department</NavLink>
+          {this.state.loggedIn && <h3 onClick={this.logOutUser}>Logout</h3>}
         </LoginNav>
         <Route
           path="/login"
-          render={props => <RegisterLogin {...props} login />}
+          render={props => (
+            <RegisterLogin {...props} login logInUser={this.logInUser} />
+          )}
         />
         <Route
           path="/register"
           render={props => <RegisterLogin {...props} />}
         />
-        <Route
-          path="/users"
-          render={props => <Users {...props} />}
-        />
+        <Route path="/users" exact render={props => <Users {...props} />} />
+                        <Route path="/users/department" render={props => <Users {...props} department />} />
       </LoginWrapper>
     );
   }

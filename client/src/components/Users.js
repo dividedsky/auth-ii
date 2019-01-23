@@ -16,36 +16,49 @@ class Users extends React.Component {
     this.state = {
       users: [],
       errorMessage: '',
-    }
+    };
   }
 
   componentDidMount() {
+    let url;
+    if (this.props.department) {
+      url = 'http://localhost:4200/users/department'
+    } else {
+      url = 'http://localhost:4200/users';
+    }
+
     axios.defaults.withCredentials = true;
-    axios.get('http://localhost:4200/users', {headers: { Authorization: localStorage.getItem('jwt') }}
-    )
+    axios
+      .get(`${url}`, {
+        headers: { Authorization: localStorage.getItem('jwt') },
+      })
       .then(res => {
-        this.setState({users: res.data});
+        this.setState({ users: res.data });
       })
       .catch(err => {
-        this.setState({ errorMessage: err.message })
+        console.log(err);
         
+        this.setState({ errorMessage: 'Please log in to access the user list'});
+        setTimeout(() => {
+          this.props.history.push('/login')
+        }
+          ,2000);
       })
   }
 
   render() {
     if (this.state.errorMessage) {
-      return (
-        <h3>{this.state.errorMessage}</h3>
-      )
+      return <h3>{this.state.errorMessage}</h3>;
     }
     return (
       <>
         <h2>User List</h2>
         <UserList>
-          {this.state.users.length && this.state.users.map((u, i) => <p key={i}>{u.username}</p>)}
+          {this.state.users.length &&
+              this.state.users.map((u, i) => <p key={i}><strong>{u.username}:</strong> department of {u.department}</p>)}
         </UserList>
       </>
-    )
+    );
   }
 }
 
