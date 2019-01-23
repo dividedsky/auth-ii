@@ -52,4 +52,29 @@ server.post('/register', (req, res) => {
   } 
 })
 
+server.post('/login', (req, res) => {
+  const creds = req.body;
+  // ensure password and username were sent
+  if (!creds.password || !creds.username) {
+    res.status(400).json({error: 'please provide a username and password'})
+    return null;
+  }
+  // ensure password and username are valid
+  db('users').where({username: creds.username}).first()
+    .then(user => {
+      if (user && bcrypt.compareSync(creds.password, user.password)) {
+        // username and password are a match, generate token and return
+        const token = generateToken(user);
+        res.status(200).json({ message: `welcome, ${user.username}`, token })
+      } else {
+        // username and/or password are invalid
+        res.status(401).json({error: `invalid username or password`})
+      }
+    })
+    .catch(err => {
+      res.status(500).json({error: `there was an error accessing the database: ${err}`})
+    })
+
+})
+
 module.exports = server;
