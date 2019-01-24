@@ -1,37 +1,19 @@
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 const express = require('express');
-const morgan = require('morgan');
-const helmet = require('helmet');
-const bcrypt = require('bcryptjs');
-const knex = require('knex');
-const knexConfig = require('../knexfile.js');
-const cors = require('cors');
-const db = knex(knexConfig.development);
+
+const middlewareConfig = require('../config/middleware');
+const db = require('../config/dbConfig');
+
+const {generateToken, lock} = require('../common/middleware');
 
 const server = express();
+middlewareConfig(server);
 
-server.use(morgan('dev'));
-server.use(helmet());
-server.use(express.json());
-server.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
 server.get('/', (req, res) => {
   res.status(200).send('wheee, the server is running');
 });
 
-function generateToken(user) {
-  const payload = {
-    username: user.username,
-  };
-
-  const secret = process.env.JWT_SECRET;
-  const options = {
-    expiresIn: '10m',
-  };
-
-  return jwt.sign(payload, secret, options);
-}
 
 server.post('/register', (req, res) => {
   const user = req.body;
@@ -88,21 +70,6 @@ server.post('/login', (req, res) => {
     });
 });
 
-const lock = (req, res, next) => {
-  // check JWT to be sure user is logged in
-  const token = req.headers.authorization;
-
-  if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
-      if (err) {
-        res.status(401).json({ error: 'invalid token' });
-      } else {
-        req.decodedToken = decodedToken;
-        next();
-      }
-    });
-  }
-};
 
 server.get('/users/department', lock, (req, res) => {
   // find current user's department

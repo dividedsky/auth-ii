@@ -48,6 +48,7 @@ class RegisterLogin extends React.Component {
         .then(res => {
           this.setState({ modalMessage: res.data.message, showModal: true });
           this.props.logInUser(res.data.token);
+          setTimeout(() => this.props.history.push('/users'), 1000);
         })
         .catch(err => {
           this.setState({ modalMessage: err.message, showModal: true });

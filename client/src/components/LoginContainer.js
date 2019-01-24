@@ -58,6 +58,7 @@ class LoginContainer extends React.Component {
   logOutUser = () => {
     this.setState({ loggedIn: false });
     localStorage.removeItem('jwt');
+    this.props.history.push('/login');
   };
 
   render() {
@@ -67,7 +68,7 @@ class LoginContainer extends React.Component {
           <NavLink to="/login">Login</NavLink>
           <NavLink to="/register">Register</NavLink>
           <NavLink exact to="/users">Users</NavLink>
-          <NavLink to="/users/department">Department</NavLink>
+          <NavLink to="/users/department">My Department</NavLink>
           {this.state.loggedIn && <h3 onClick={this.logOutUser}>Logout</h3>}
         </LoginNav>
         <Route
