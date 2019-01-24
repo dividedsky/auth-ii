@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const {getUserDepartment} = require('../data/dbHelpers');
 
 exports.generateToken = (user) => {
   const payload = {
@@ -35,6 +35,19 @@ exports.ensureValidUser = (req, res, next) => {
   if (!user.username || !user.password) {
     res.status(400).json({ error: 'user must have a username and password' });
   } else {
+    next();
+  }
+}
+
+exports.checkDepartment = async (req, res, next) => {
+  const userInfo = await getUserDepartment(req.decodedToken.username);
+  const userDept = userInfo.department;
+  const dept = req.params.department;
+  
+  if (userDept !== dept) {
+    res.status(403).json({error: `stay in the ${userDept} department! You do not have access to the ${dept} department list.`})
+  }
+  else {
     next();
   }
 }

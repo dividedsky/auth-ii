@@ -12,7 +12,7 @@ const {
   addUser,
 } = require('../data/dbHelpers');
 
-const { generateToken, lock, ensureValidUser } = require('../common/middleware');
+const { generateToken, lock, ensureValidUser, checkDepartment } = require('../common/middleware');
 
 const server = express();
 middlewareConfig(server);
@@ -93,8 +93,7 @@ server.get('/users', lock, (req, res) => {
     });
 });
 
-server.get('/users/department/:department', lock, async (req, res) => {
-  // find current user's department
+server.get('/users/department/:department', lock, checkDepartment, async (req, res) => {
   const department = req.params.department;
   try {
   const departmentList = await(getDepartment(department));
