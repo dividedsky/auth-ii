@@ -29,3 +29,12 @@ exports.lock = (req, res, next) => {
     });
   }
 };
+
+exports.ensureValidUser = (req, res, next) => {
+  const user = req.body;
+  if (!user.username || !user.password) {
+    res.status(400).json({ error: 'user must have a username and password' });
+  } else {
+    next();
+  }
+}
