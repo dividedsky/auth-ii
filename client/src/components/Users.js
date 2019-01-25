@@ -27,6 +27,7 @@ class Users extends React.Component {
       },
       baseURL: 'http://localhost:4200',
     });
+
     let url;
     if (this.props.department) {
       url = '/users/department';

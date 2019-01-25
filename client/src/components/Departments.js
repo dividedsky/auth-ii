@@ -50,7 +50,7 @@ class Departments extends React.Component {
         })
         .catch(err => {
           this.setState({
-            errorMessage: 'you cannot access that department',
+            errorMessage: `you cannot access the ${this.state.currentDepartment} department`,
             departmentList: [],
           });
         });
