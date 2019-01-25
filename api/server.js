@@ -10,6 +10,7 @@ const {
   getDepartment,
   getUserDepartment,
   addUser,
+  getDepartmentList,
 } = require('../data/dbHelpers');
 
 const { generateToken, lock, ensureValidUser, checkDepartment } = require('../common/middleware');
@@ -94,15 +95,26 @@ server.get('/users', lock, (req, res) => {
 });
 
 server.get('/users/department/:department', lock, checkDepartment, async (req, res) => {
-  const department = req.params.department;
+  const {department} = req.params;
   try {
-  const departmentList = await(getDepartment(department));
+  let departmentList = await(getDepartment(department));
+    departmentList = departmentList.map(i => i.username)
   res.status(200).json(departmentList);
   } catch(err) {
        res
          .status(500)
          .json({ error: `there was an error accessing the database: ${err}` });
   }
+});
+
+server.get('/departmentlist', (req, res) => {
+  getDepartmentList()
+    .then(list => {
+      list = list.map(d => d.department);
+      res.status(200).json(list)
+    })
+    .catch(err => res.status(500).json({error: `there was an error accessing the db: ${err}`})
+);
 });
 
 module.exports = server;

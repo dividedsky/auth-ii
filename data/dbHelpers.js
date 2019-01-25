@@ -1,7 +1,7 @@
 const db = require('../config/dbConfig');
 
 module.exports = {
-  getDepartment: department => db('users').select('username').where({ department }),
+  getDepartment: department => db('users').select('username', 'department').where({ department }),
 
   getUsers: () => db('users').select('username', 'department'),
 
@@ -10,5 +10,7 @@ module.exports = {
   getUserDepartment:  username => db('users').select('department').where({username}).first(),
 
   addUser: user => db('users').insert(user),
+
+  getDepartmentList: () => db('users').distinct('department').select(),
 
 }

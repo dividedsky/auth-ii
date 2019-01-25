@@ -2,7 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Route, NavLink } from 'react-router-dom';
 import RegisterLogin from './Register';
+import Departments from './Departments';
 import Users from './Users';
+import axios from 'axios';
 
 const LoginWrapper = styled.div`
   position: absolute;
@@ -47,7 +49,25 @@ class LoginContainer extends React.Component {
     super();
     this.state = {
       loggedIn: false,
+      departments: [],
     };
+  }
+
+  componentDidMount() {
+    const ax = axios.create({
+      baseURL: 'http://localhost:4200',
+      withCredentials: true,
+      headers: {
+        authorization: localStorage.getItem('jwt'),
+      },
+    });
+    ax.get('/departmentlist')
+      .then(res => {
+        this.setState({ departments: res.data });
+      })
+      .catch(err => {
+        console.log(`oh noooo! ${err}`);
+      });
   }
 
   logInUser = token => {
@@ -60,15 +80,25 @@ class LoginContainer extends React.Component {
     localStorage.removeItem('jwt');
     this.props.history.push('/login');
   };
-
+  /*<select>
+            {this.state.departments.map(d => (
+              <option value={d.department}
+                onChange={this.props.history.push(`/department/${d.department}`)}
+              >{d.department}</option>
+            ))}
+          </select>
+          */
   render() {
     return (
       <LoginWrapper>
         <LoginNav>
           <NavLink to="/login">Login</NavLink>
           <NavLink to="/register">Register</NavLink>
-          <NavLink exact to="/users">Users</NavLink>
+          <NavLink exact to="/users">
+            Users
+          </NavLink>
           <NavLink to="/users/department">My Department</NavLink>
+          <NavLink to="/departments">Departments</NavLink>
           {this.state.loggedIn && <h3 onClick={this.logOutUser}>Logout</h3>}
         </LoginNav>
         <Route
@@ -82,7 +112,17 @@ class LoginContainer extends React.Component {
           render={props => <RegisterLogin {...props} />}
         />
         <Route path="/users" exact render={props => <Users {...props} />} />
-                        <Route path="/users/department" render={props => <Users {...props} department />} />
+        <Route
+          path="/departments"
+          exact
+          render={props => (
+            <Departments {...props} departments={this.state.departments} />
+          )}
+        />
+        <Route
+          path="/users/department"
+          render={props => <Users {...props} department />}
+        />
       </LoginWrapper>
     );
   }
